@@ -294,7 +294,7 @@
 
 	CGRect viewRect = self.view.bounds; // View controller's view bounds
 
-	theScrollView = [[UIScrollView alloc] initWithFrame:viewRect]; // All
+	theScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(viewRect.origin.x, viewRect.origin.y, viewRect.size.width, viewRect.size.height - PAGEBAR_HEIGHT)];
 
 	theScrollView.scrollsToTop = NO;
 	theScrollView.pagingEnabled = YES;
