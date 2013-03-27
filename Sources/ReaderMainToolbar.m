@@ -96,6 +96,7 @@
 		doneButton.autoresizingMask = UIViewAutoresizingNone;
 
 		[self addSubview:doneButton]; leftButtonX += (DONE_BUTTON_WIDTH + BUTTON_SPACE);
+        leftButtonX = leftButtonX;  // to slience the analyzer
 
 		titleX += (DONE_BUTTON_WIDTH + BUTTON_SPACE); titleWidth -= (DONE_BUTTON_WIDTH + BUTTON_SPACE);
 
