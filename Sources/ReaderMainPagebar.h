@@ -51,6 +51,9 @@
 - (void)hidePagebar;
 - (void)showPagebar;
 
+- (void)hidePageNumber;
+- (void)showPageNumber;
+
 @end
 
 #pragma mark -

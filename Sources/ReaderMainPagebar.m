@@ -131,6 +131,8 @@
 		pageNumberLabel.text = number; // Update the page number label text
 
 		pageNumberLabel.tag = page; // Update the last page number tag
+        
+        [self showPageNumber];
 	}
 }
 
@@ -366,6 +368,41 @@
 		];
 	}
 }
+
+- (void)hidePageNumber
+{
+    if (pageNumberView.hidden == NO) // Only if visible
+	{
+		[UIView animateWithDuration:0.15 delay:0.0
+                            options:UIViewAnimationOptionCurveLinear | UIViewAnimationOptionAllowUserInteraction
+                         animations:^(void)
+         {
+             pageNumberView.alpha = 0.0f;
+         }
+                         completion:^(BOOL finished)
+         {
+             pageNumberView.hidden = YES;
+         }
+         ];
+	}
+}
+
+- (void)showPageNumber
+{
+    if (pageNumberView.hidden == YES) // Only if hidden
+	{
+		[UIView animateWithDuration:0.15 delay:0.0
+                            options:UIViewAnimationOptionCurveLinear | UIViewAnimationOptionAllowUserInteraction
+                         animations:^(void)
+         {
+             pageNumberView.hidden = NO;
+             pageNumberView.alpha = 1.0f;
+         }
+         completion:NULL
+         ];
+	}
+}
+
 
 #pragma mark ReaderTrackControl action methods
 

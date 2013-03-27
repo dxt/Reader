@@ -45,7 +45,7 @@
 #define PAGING_VIEWS 3
 
 #define TOOLBAR_HEIGHT 44.0f
-#define PAGEBAR_HEIGHT 48.0f
+#define PAGEBAR_HEIGHT 32.0f
 
 #define TAP_AREA_SIZE 48.0f
 
