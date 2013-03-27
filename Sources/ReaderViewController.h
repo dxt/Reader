@@ -28,6 +28,8 @@
 #import "ReaderDocument.h"
 
 @class ReaderViewController;
+@class ReaderMainToolbar;
+@class ReaderMainPagebar;
 
 @protocol ReaderViewControllerDelegate <NSObject>
 
@@ -38,6 +40,28 @@
 @end
 
 @interface ReaderViewController : UIViewController
+{
+@protected
+	ReaderDocument *document;
+    
+	UIScrollView *theScrollView;
+    
+	ReaderMainToolbar *mainToolbar;
+    
+	ReaderMainPagebar *mainPagebar;
+    
+	NSMutableDictionary *contentViews;
+    
+	UIPrintInteractionController *printInteraction;
+    
+	NSInteger currentPage;
+    
+	CGSize lastAppearSize;
+    
+	NSDate *lastHideTime;
+    
+	BOOL isVisible;
+}
 
 @property (nonatomic, unsafe_unretained, readwrite) id <ReaderViewControllerDelegate> delegate;
 
