@@ -60,7 +60,7 @@
 	^{
 		NSArray *cachesPaths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
 
-		theCachesPath = [[cachesPaths objectAtIndex:0] copy]; // Keep a copy for later abusage
+        theCachesPath = [[[cachesPaths objectAtIndex:0] stringByAppendingPathComponent:@"org.vfr.readerthumbcache"] copy]; // Keep a copy for later abusage
 	});
 
 	return theCachesPath;

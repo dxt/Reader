@@ -274,7 +274,7 @@
 
 - (void)saveReaderDocument
 {
-	[self archiveWithFileName:[self fileName]];
+// 	[self archiveWithFileName:[self fileName]]; Do not save to disk
 }
 
 - (void)updateProperties
