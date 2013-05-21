@@ -161,6 +161,8 @@
 				[theScrollView addSubview:contentView]; [contentViews setObject:contentView forKey:key];
 
 				contentView.message = self; [newPageSet addIndex:number];
+                
+                [self createdContentView:contentView forPage:number];
 			}
 			else // Reposition the existing content view
 			{
@@ -890,6 +892,12 @@
 	{
 		if (printInteraction != nil) [printInteraction dismissAnimated:NO];
 	}
+}
+
+#pragma mark Methods for subclasses
+
+- (void)createdContentView:(ReaderContentView *)contentView forPage:(NSInteger)pageNumber{
+    // Subclasses can override to perform custom actions
 }
 
 @end

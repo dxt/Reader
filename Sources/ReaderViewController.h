@@ -30,6 +30,7 @@
 @class ReaderViewController;
 @class ReaderMainToolbar;
 @class ReaderMainPagebar;
+@class ReaderContentView;
 
 @protocol ReaderViewControllerDelegate <NSObject>
 
@@ -66,5 +67,7 @@
 @property (nonatomic, unsafe_unretained, readwrite) id <ReaderViewControllerDelegate> delegate;
 
 - (id)initWithReaderDocument:(ReaderDocument *)object;
+
+- (void)createdContentView:(ReaderContentView *)contentView forPage:(NSInteger)pageNumber;
 
 @end
