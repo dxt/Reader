@@ -109,7 +109,7 @@ static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
 			theContainerView = [[UIView alloc] initWithFrame:theContentView.bounds];
 
 			theContainerView.autoresizesSubviews = NO;
-			theContainerView.userInteractionEnabled = NO;
+			theContainerView.userInteractionEnabled = YES;
 			theContainerView.contentMode = UIViewContentModeRedraw;
 			theContainerView.autoresizingMask = UIViewAutoresizingNone;
 			theContainerView.backgroundColor = [UIColor whiteColor];
