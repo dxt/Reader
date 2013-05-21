@@ -37,6 +37,10 @@
 
 - (void)contentView:(ReaderContentView *)contentView touchesBegan:(NSSet *)touches;
 
+@optional
+
+- (BOOL)contentView:(ReaderContentView *)contentView shouldReceiveTouch:(UITouch *)touch fromGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer;
+
 @end
 
 @interface ReaderContentView : UIScrollView <UIScrollViewDelegate>

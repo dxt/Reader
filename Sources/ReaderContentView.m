@@ -305,6 +305,16 @@ static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
 	[super touchesMoved:touches withEvent:event]; // Message superclass
 }
 
+#pragma mark UIGestureRecognizer delegate methods
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch{
+    if([self.message respondsToSelector:@selector(contentView:shouldReceiveTouch:fromGestureRecognizer:)]){
+        return [self.message contentView:self shouldReceiveTouch:touch fromGestureRecognizer:gestureRecognizer];
+    }else{
+        return YES;
+    }
+}
+
 @end
 
 #pragma mark -
