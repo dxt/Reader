@@ -36,6 +36,7 @@
 
 @interface ReaderViewController () <UIScrollViewDelegate, UIGestureRecognizerDelegate, MFMailComposeViewControllerDelegate,
 									ReaderMainToolbarDelegate, ReaderMainPagebarDelegate, ReaderContentViewDelegate, ThumbsViewControllerDelegate>
+@property (nonatomic) BOOL showPagebar;
 @end
 
 @implementation ReaderViewController
@@ -263,12 +264,19 @@
 
 - (id)initWithReaderDocument:(ReaderDocument *)object
 {
+    return [self initWithReaderDocument:object showPagebar:YES];
+}
+
+- (id)initWithReaderDocument:(ReaderDocument *)object showPagebar:(BOOL)showPagebar
+{
 	id reader = nil; // ReaderViewController object
 
 	if ((object != nil) && ([object isKindOfClass:[ReaderDocument class]]))
 	{
 		if ((self = [super initWithNibName:nil bundle:nil])) // Designated initializer
 		{
+            self.showPagebar = showPagebar;
+            
 			NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 
 			[notificationCenter addObserver:self selector:@selector(applicationWill:) name:UIApplicationWillTerminateNotification object:nil];
@@ -296,7 +304,11 @@
 
 	CGRect viewRect = self.view.bounds; // View controller's view bounds
 
-	theScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(viewRect.origin.x, viewRect.origin.y, viewRect.size.width, viewRect.size.height - PAGEBAR_HEIGHT)];
+    CGRect scrollRect = viewRect;
+    if(self.showPagebar){
+        scrollRect.size.height -= PAGEBAR_HEIGHT;
+    }
+	theScrollView = [[UIScrollView alloc] initWithFrame:scrollRect];
 
 	theScrollView.scrollsToTop = NO;
 	theScrollView.pagingEnabled = YES;
@@ -321,15 +333,17 @@
 
 	[self.view addSubview:mainToolbar];
 
-	CGRect pagebarRect = viewRect;
-	pagebarRect.size.height = PAGEBAR_HEIGHT;
-	pagebarRect.origin.y = (viewRect.size.height - PAGEBAR_HEIGHT);
+    if(self.showPagebar){
+        CGRect pagebarRect = viewRect;
+        pagebarRect.size.height = PAGEBAR_HEIGHT;
+        pagebarRect.origin.y = (viewRect.size.height - PAGEBAR_HEIGHT);
 
-	mainPagebar = [[ReaderMainPagebar alloc] initWithFrame:pagebarRect document:document]; // At bottom
+        mainPagebar = [[ReaderMainPagebar alloc] initWithFrame:pagebarRect document:document]; // At bottom
 
-	mainPagebar.delegate = self;
+        mainPagebar.delegate = self;
 
-	[self.view addSubview:mainPagebar];
+        [self.view addSubview:mainPagebar];
+    }
 
 	UITapGestureRecognizer *singleTapOne = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
 	singleTapOne.numberOfTouchesRequired = 1; singleTapOne.numberOfTapsRequired = 1; singleTapOne.delegate = self;

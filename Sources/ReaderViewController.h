@@ -67,6 +67,7 @@
 @property (nonatomic, unsafe_unretained, readwrite) id <ReaderViewControllerDelegate> delegate;
 
 - (id)initWithReaderDocument:(ReaderDocument *)object;
+- (id)initWithReaderDocument:(ReaderDocument *)object showPagebar:(BOOL)showPagebar;
 
 - (void)createdContentView:(ReaderContentView *)contentView forPage:(NSInteger)pageNumber;
 
