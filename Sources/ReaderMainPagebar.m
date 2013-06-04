@@ -64,6 +64,9 @@
 
 @synthesize delegate;
 
+@synthesize topGradientColor = _topGradientColor;
+@synthesize bottomGradientColor = _bottomGradientColor;
+
 #pragma mark ReaderMainPagebar class methods
 
 + (Class)layerClass
@@ -148,10 +151,7 @@
 		self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
 		self.backgroundColor = [UIColor clearColor];
 
-		CAGradientLayer *layer = (CAGradientLayer *)self.layer;
-		UIColor *liteColor = [UIColor colorWithWhite:0.82f alpha:0.8f];
-		UIColor *darkColor = [UIColor colorWithWhite:0.32f alpha:0.8f];
-		layer.colors = [NSArray arrayWithObjects:(id)liteColor.CGColor, (id)darkColor.CGColor, nil];
+        [self updateGradient];
 
 		CGRect shadowRect = self.bounds; shadowRect.size.height = 4.0f; shadowRect.origin.y -= shadowRect.size.height;
 
@@ -314,6 +314,54 @@
 			ReaderPagebarThumb *thumb = object; thumb.hidden = YES;
 		}
 	];
+}
+
+- (void)updateGradient{
+    CAGradientLayer *layer = (CAGradientLayer *)self.layer;
+    UIColor *liteColor = self.topGradientColor;
+    UIColor *darkColor = self.bottomGradientColor;
+    layer.colors = [NSArray arrayWithObjects:(id)liteColor.CGColor, (id)darkColor.CGColor, nil];
+}
+
+- (UIColor *)topGradientColor{
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000
+    if(_topGradientColor == nil){
+        _topGradientColor = [[[self class] appearance] topGradientColor];
+    }
+
+    if(_topGradientColor != nil){
+        return _topGradientColor;
+    }
+#endif
+
+    return [UIColor colorWithWhite:0.82f alpha:0.8f];
+}
+
+- (void)setTopGradientColor:(UIColor *)topGradientColor{
+    if(_topGradientColor != topGradientColor){
+        _topGradientColor = topGradientColor;
+        [self updateGradient];
+    }
+}
+
+- (UIColor *)bottomGradientColor{
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000
+    if(_bottomGradientColor == nil){
+        _bottomGradientColor = [[[self class] appearance] bottomGradientColor];
+    }
+
+    if(_bottomGradientColor != nil){
+        return _bottomGradientColor;
+    }
+#endif
+    return [UIColor colorWithWhite:0.32f alpha:0.8f];
+}
+
+- (void)setBottomGradientColor:(UIColor *)bottomGradientColor{
+    if(_bottomGradientColor != bottomGradientColor){
+        _bottomGradientColor = bottomGradientColor;
+        [self updateGradient];
+    }
 }
 
 - (void)updatePagebarViews
@@ -620,6 +668,8 @@
 
 @implementation ReaderPagebarShadow
 
+@synthesize shadowColor = _shadowColor;
+
 #pragma mark ReaderPagebarShadow class methods
 
 + (Class)layerClass
@@ -639,13 +689,51 @@
 		self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 		self.backgroundColor = [UIColor clearColor];
 
-		CAGradientLayer *layer = (CAGradientLayer *)self.layer;
-		UIColor *blackColor = [UIColor colorWithWhite:0.42f alpha:1.0f];
-		UIColor *clearColor = [UIColor colorWithWhite:0.42f alpha:0.0f];
-		layer.colors = [NSArray arrayWithObjects:(id)clearColor.CGColor, (id)blackColor.CGColor, nil];
+        [self updateGradient];
 	}
 
 	return self;
+}
+
+- (void)updateGradient{
+    CAGradientLayer *layer = (CAGradientLayer *)self.layer;
+    UIColor *baseColor = self.shadowColor;
+
+    CGFloat red, green, blue;
+    const CGFloat *components = CGColorGetComponents([baseColor CGColor]);
+    if(CGColorGetNumberOfComponents([baseColor CGColor]) == 2){
+        red = components[0];
+        green = components[0];
+        blue = components[0];
+    }else{
+        red = components[0];
+        green = components[1];
+        blue = components[2];
+    }
+
+    UIColor *clearColor = [UIColor colorWithRed:red green:green blue:blue alpha:0];
+    layer.colors = [NSArray arrayWithObjects:(id)clearColor.CGColor, (id)baseColor.CGColor, nil];
+}
+
+- (UIColor *)shadowColor{
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000
+    if(_shadowColor == nil){
+        _shadowColor = [[[self class] appearance] shadowColor];
+    }
+
+    if(_shadowColor != nil){
+        return _shadowColor;
+    }
+#endif
+
+    return [UIColor colorWithWhite:0.42f alpha:1.0f];
+}
+
+- (void)setShadowColor:(UIColor *)shadowColor{
+    if(_shadowColor != shadowColor){
+        _shadowColor = shadowColor;
+        [self updateGradient];
+    }
 }
 
 @end

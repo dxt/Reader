@@ -42,7 +42,12 @@
 
 @interface ReaderMainPagebar : UIView
 
-@property (nonatomic, unsafe_unretained, readwrite) id <ReaderMainPagebarDelegate> delegate;
+@property (nonatomic, weak, readwrite) id <ReaderMainPagebarDelegate> delegate;
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000
+@property (readwrite, nonatomic, strong) UIColor *topGradientColor NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+@property (readwrite, nonatomic, strong) UIColor *bottomGradientColor NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+#endif
 
 - (id)initWithFrame:(CGRect)frame document:(ReaderDocument *)object;
 
@@ -87,5 +92,9 @@
 //
 
 @interface ReaderPagebarShadow : UIView
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000
+@property (readwrite, nonatomic, strong) UIColor *shadowColor NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+#endif
 
 @end
