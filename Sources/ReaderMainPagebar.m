@@ -66,6 +66,7 @@
 
 @synthesize topGradientColor = _topGradientColor;
 @synthesize bottomGradientColor = _bottomGradientColor;
+@synthesize backgroundImage = _backgroundImage;
 
 #pragma mark ReaderMainPagebar class methods
 
@@ -151,7 +152,7 @@
 		self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
 		self.backgroundColor = [UIColor clearColor];
 
-        [self updateGradient];
+        [self updateStyle];
 
 		CGRect shadowRect = self.bounds; shadowRect.size.height = 4.0f; shadowRect.origin.y -= shadowRect.size.height;
 
@@ -316,11 +317,15 @@
 	];
 }
 
-- (void)updateGradient{
-    CAGradientLayer *layer = (CAGradientLayer *)self.layer;
-    UIColor *liteColor = self.topGradientColor;
-    UIColor *darkColor = self.bottomGradientColor;
-    layer.colors = [NSArray arrayWithObjects:(id)liteColor.CGColor, (id)darkColor.CGColor, nil];
+- (void)updateStyle{
+    if(self.backgroundImage){
+        self.backgroundColor = [UIColor colorWithPatternImage:self.backgroundImage];
+    }else{
+        CAGradientLayer *layer = (CAGradientLayer *)self.layer;
+        UIColor *liteColor = self.topGradientColor;
+        UIColor *darkColor = self.bottomGradientColor;
+        layer.colors = [NSArray arrayWithObjects:(id)liteColor.CGColor, (id)darkColor.CGColor, nil];
+    }
 }
 
 - (UIColor *)topGradientColor{
@@ -340,7 +345,7 @@
 - (void)setTopGradientColor:(UIColor *)topGradientColor{
     if(_topGradientColor != topGradientColor){
         _topGradientColor = topGradientColor;
-        [self updateGradient];
+        [self updateStyle];
     }
 }
 
@@ -360,7 +365,27 @@
 - (void)setBottomGradientColor:(UIColor *)bottomGradientColor{
     if(_bottomGradientColor != bottomGradientColor){
         _bottomGradientColor = bottomGradientColor;
-        [self updateGradient];
+        [self updateStyle];
+    }
+}
+
+- (UIImage *)backgroundImage{
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000
+    if(_backgroundImage == nil){
+        _backgroundImage = [[[self class] appearance] backgroundImage];
+    }
+
+    if(_backgroundImage != nil){
+        return _backgroundImage;
+    }
+#endif
+    return nil;
+}
+
+- (void)setBackgroundImage:(UIImage *)backgroundImage{
+    if(_backgroundImage != backgroundImage){
+        _backgroundImage = backgroundImage;
+        [self updateStyle];
     }
 }
 

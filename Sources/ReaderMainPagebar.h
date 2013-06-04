@@ -47,6 +47,7 @@
 #if __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000
 @property (readwrite, nonatomic, strong) UIColor *topGradientColor NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
 @property (readwrite, nonatomic, strong) UIColor *bottomGradientColor NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
+@property (readwrite, nonatomic, strong) UIImage *backgroundImage NS_AVAILABLE_IOS(5_0) UI_APPEARANCE_SELECTOR;
 #endif
 
 - (id)initWithFrame:(CGRect)frame document:(ReaderDocument *)object;
