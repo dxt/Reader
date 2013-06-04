@@ -743,7 +743,7 @@
 - (UIColor *)shadowColor{
 #if __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000
     if(_shadowColor == nil){
-        _shadowColor = [[[self class] appearance] shadowColor];
+        _shadowColor = (UIColor *)[[[self class] appearance] shadowColor];
     }
 
     if(_shadowColor != nil){
