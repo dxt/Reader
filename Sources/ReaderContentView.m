@@ -64,7 +64,15 @@ static void *ReaderContentViewContext = &ReaderContentViewContext;
 
 static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
 {
-	CGFloat w_scale = (target.width / source.width);
+#pragma message ("iOS8 UIScrollView Swipe Issue Workaround")
+    CGFloat workaroundWidthInset = 0.0f;
+#ifndef __arm64__
+    // Issue occurs only on iOS 8 32-bit iPhones
+    if(INTERFACE_IS_PHONE && SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")){
+        workaroundWidthInset = 4.0f;
+    }
+#endif
+	CGFloat w_scale = (target.width / (source.width + workaroundWidthInset));
 
 	CGFloat h_scale = (target.height / source.height);
 
