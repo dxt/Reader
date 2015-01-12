@@ -68,7 +68,8 @@ static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
     CGFloat workaroundWidthInset = 0.0f;
 #ifndef __arm64__
     // Issue occurs only on iOS 8 32-bit iPhones
-    if(INTERFACE_IS_PHONE && SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")){
+    if(([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) &&
+       ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] != NSOrderedAscending)){
         workaroundWidthInset = 4.0f;
     }
 #endif
