@@ -837,7 +837,7 @@
 			[mailComposer setSubject:fileName]; // Use the document file name for the subject
 
 			mailComposer.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-			mailComposer.modalPresentationStyle = UIModalPresentationFormSheet;
+			mailComposer.modalPresentationStyle = UIModalPresentationPageSheet;
 
 			mailComposer.mailComposeDelegate = self; // Set the delegate
 
