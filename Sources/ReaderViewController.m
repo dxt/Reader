@@ -594,12 +594,18 @@
 						}
 					}
 
+#ifdef SIGNING_ACTION_EXTENSION
+                    [self.extensionContext openURL:url completionHandler:^(BOOL success) {
+                        NSLog(@"%s '%@'", __FUNCTION__, url); // Bad or unknown URL
+                    }];
+#else
 					if ([[UIApplication sharedApplication] openURL:url] == NO)
 					{
 						#ifdef DEBUG
 							NSLog(@"%s '%@'", __FUNCTION__, url); // Bad or unknown URL
 						#endif
 					}
+#endif
 				}
 				else // Not a URL, so check for other possible object type
 				{
