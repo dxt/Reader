@@ -596,7 +596,10 @@
 
 #ifdef READER_APP_EXTENSIONS
                     [self.extensionContext openURL:url completionHandler:^(BOOL success) {
-                        NSLog(@"%s '%@'", __FUNCTION__, url); // Bad or unknown URL
+                        #ifdef DEBUG
+                            NSLog(@"%s '%@'", __FUNCTION__, url); // Bad or unknown URL
+                        #endif
+
                     }];
 #else
 					if ([[UIApplication sharedApplication] openURL:url] == NO)
