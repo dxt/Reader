@@ -37,6 +37,7 @@
 @interface ReaderViewController () <UIScrollViewDelegate, UIGestureRecognizerDelegate, MFMailComposeViewControllerDelegate, UIDocumentInteractionControllerDelegate,
 									ReaderMainToolbarDelegate, ReaderMainPagebarDelegate, ReaderContentViewDelegate, ThumbsViewControllerDelegate>
 @property (nonatomic) BOOL showPagebar;
+@property (nonatomic) CGSize lastLayoutScrollViewSize;
 @end
 
 @implementation ReaderViewController
@@ -455,24 +456,17 @@
 	return YES;
 }
 
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (void)viewWillLayoutSubviews
 {
-	if (userInterfaceIdiom == UIUserInterfaceIdiomPad) if (printInteraction != nil) [printInteraction dismissAnimated:NO];
-
-	ignoreDidScroll = YES;
-}
-
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration
-{
-	if (CGSizeEqualToSize(theScrollView.contentSize, CGSizeZero) == false)
-	{
-		[self updateContentViews:theScrollView]; lastAppearSize = CGSizeZero;
-	}
-}
-
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-	ignoreDidScroll = NO;
+    [super viewWillLayoutSubviews];
+    
+    if (CGSizeEqualToSize(theScrollView.contentSize, CGSizeZero) == false && CGSizeEqualToSize(theScrollView.bounds.size, self.lastLayoutScrollViewSize) == false)
+    {
+        self.lastLayoutScrollViewSize = theScrollView.bounds.size;
+        ignoreDidScroll = YES;
+        [self updateContentViews:theScrollView]; lastAppearSize = CGSizeZero;
+        ignoreDidScroll = NO;
+    }
 }
 
 - (void)didReceiveMemoryWarning
