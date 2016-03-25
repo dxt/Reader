@@ -1,9 +1,9 @@
 //
 //	ReaderMainPagebar.m
-//	Reader v2.6.1
+//	Reader v2.8.6
 //
 //	Created by Julius Oklamcak on 2011-09-01.
-//	Copyright © 2011-2012 Julius Oklamcak. All rights reserved.
+//	Copyright © 2011-2015 Julius Oklamcak. All rights reserved.
 //
 //	Permission is hereby granted, free of charge, to any person obtaining a copy
 //	of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 //	CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#import "ReaderConstants.h"
 #import "ReaderMainPagebar.h"
 #import "ReaderThumbCache.h"
 #import "ReaderDocument.h"
@@ -47,7 +48,7 @@
 	NSTimer *trackTimer;
 }
 
-#pragma mark Constants
+#pragma mark - Constants
 
 #define THUMB_SMALL_GAP 2
 #define THUMB_SMALL_WIDTH 22
@@ -58,26 +59,30 @@
 
 #define PAGE_NUMBER_WIDTH 96.0f
 #define PAGE_NUMBER_HEIGHT 30.0f
-#define PAGE_NUMBER_SPACE 20.0f
 
-#pragma mark Properties
+#define PAGE_NUMBER_SPACE_SMALL 16.0f
+#define PAGE_NUMBER_SPACE_LARGE 32.0f
+
+#define SHADOW_HEIGHT 4.0f
+
+#pragma mark - Properties
 
 @synthesize delegate;
 
-@synthesize topGradientColor = _topGradientColor;
-@synthesize bottomGradientColor = _bottomGradientColor;
-@synthesize backgroundImage = _backgroundImage;
-
-#pragma mark ReaderMainPagebar class methods
+#pragma mark - ReaderMainPagebar class methods
 
 + (Class)layerClass
 {
+#if (READER_FLAT_UI == FALSE) // Option
 	return [CAGradientLayer class];
+#else
+	return [CALayer class];
+#endif // end of READER_FLAT_UI Option
 }
 
-#pragma mark ReaderMainPagebar instance methods
+#pragma mark - ReaderMainPagebar instance methods
 
-- (id)initWithFrame:(CGRect)frame
+- (instancetype)initWithFrame:(CGRect)frame
 {
 	return [self initWithFrame:frame document:nil];
 }
@@ -128,9 +133,9 @@
 	{
 		NSInteger pages = [document.pageCount integerValue]; // Total pages
 
-		NSString *format = NSLocalizedString(@"%d of %d", @"format"); // Format
+		NSString *format = NSLocalizedString(@"%i of %i", @"format"); // Format
 
-		NSString *number = [NSString stringWithFormat:format, page, pages]; // Text
+		NSString *number = [[NSString alloc] initWithFormat:format, (int)page, (int)pages];
 
 		pageNumberLabel.text = number; // Update the page number label text
 
@@ -140,7 +145,7 @@
 	}
 }
 
-- (id)initWithFrame:(CGRect)frame document:(ReaderDocument *)object
+- (instancetype)initWithFrame:(CGRect)frame document:(ReaderDocument *)object
 {
 	assert(object != nil); // Must have a valid ReaderDocument
 
@@ -150,18 +155,39 @@
 		self.userInteractionEnabled = YES;
 		self.contentMode = UIViewContentModeRedraw;
 		self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
-		self.backgroundColor = [UIColor clearColor];
 
-        [self updateStyle];
+		if ([self.layer isKindOfClass:[CAGradientLayer class]])
+		{
+			self.backgroundColor = [UIColor clearColor];
 
-		CGRect shadowRect = self.bounds; shadowRect.size.height = 4.0f; shadowRect.origin.y -= shadowRect.size.height;
+			CAGradientLayer *layer = (CAGradientLayer *)self.layer;
+			UIColor *liteColor = [UIColor colorWithWhite:0.82f alpha:0.8f];
+			UIColor *darkColor = [UIColor colorWithWhite:0.32f alpha:0.8f];
+			layer.colors = [NSArray arrayWithObjects:(id)liteColor.CGColor, (id)darkColor.CGColor, nil];
 
-		ReaderPagebarShadow *shadowView = [[ReaderPagebarShadow alloc] initWithFrame:shadowRect];
+			CGRect shadowRect = self.bounds; shadowRect.size.height = SHADOW_HEIGHT; shadowRect.origin.y -= shadowRect.size.height;
 
-		[self addSubview:shadowView]; // Add the shadow to the view
+			ReaderPagebarShadow *shadowView = [[ReaderPagebarShadow alloc] initWithFrame:shadowRect];
 
-		CGFloat numberY = (0.0f - (PAGE_NUMBER_HEIGHT + PAGE_NUMBER_SPACE));
-		CGFloat numberX = ((self.bounds.size.width - PAGE_NUMBER_WIDTH) / 2.0f);
+			[self addSubview:shadowView]; // Add shadow to toolbar
+		}
+		else // Follow The Fuglyosity of Flat Fad
+		{
+            self.backgroundColor = [UIColor colorWithRed:0.510 green:0.639 blue:0.733 alpha:1];  // Fighter jet blue color
+            
+			CGRect lineRect = self.bounds; lineRect.size.height = 1.0f; lineRect.origin.y -= lineRect.size.height;
+
+			UIView *lineView = [[UIView alloc] initWithFrame:lineRect];
+			lineView.autoresizesSubviews = NO;
+			lineView.userInteractionEnabled = NO;
+			lineView.contentMode = UIViewContentModeRedraw;
+			lineView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+			lineView.backgroundColor = [UIColor colorWithRed:0.427 green:0.541 blue:0.627 alpha:1];
+			[self addSubview:lineView];
+		}
+
+		CGFloat space = (([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) ? PAGE_NUMBER_SPACE_LARGE : PAGE_NUMBER_SPACE_SMALL);
+		CGFloat numberY = (0.0f - (PAGE_NUMBER_HEIGHT + space)); CGFloat numberX = ((self.bounds.size.width - PAGE_NUMBER_WIDTH) * 0.5f);
 		CGRect numberRect = CGRectMake(numberX, numberY, PAGE_NUMBER_WIDTH, PAGE_NUMBER_HEIGHT);
 
 		pageNumberView = [[UIView alloc] initWithFrame:numberRect]; // Page numbers view
@@ -189,7 +215,7 @@
 		pageNumberLabel.shadowOffset = CGSizeMake(0.0f, 1.0f);
 		pageNumberLabel.shadowColor = [UIColor blackColor];
 		pageNumberLabel.adjustsFontSizeToFitWidth = YES;
-		pageNumberLabel.minimumScaleFactor = 12.0f/16.0f;
+		pageNumberLabel.minimumScaleFactor = 0.75f;
 
 		[pageNumberView addSubview:pageNumberLabel]; // Add label view
 
@@ -239,7 +265,7 @@
 
 	CGFloat widthDelta = (self.bounds.size.width - controlWidth);
 
-	NSInteger X = (widthDelta / 2.0f); controlRect.origin.x = X;
+	NSInteger X = (widthDelta * 0.5f); controlRect.origin.x = X;
 
 	trackControl.frame = controlRect; // Update track control frame
 
@@ -247,7 +273,7 @@
 	{
 		CGFloat heightDelta = (controlRect.size.height - THUMB_LARGE_HEIGHT);
 
-		NSInteger thumbY = (heightDelta / 2.0f); NSInteger thumbX = 0; // Thumb X, Y
+		NSInteger thumbY = (heightDelta * 0.5f); NSInteger thumbX = 0; // Thumb X, Y
 
 		CGRect thumbRect = CGRectMake(thumbX, thumbY, THUMB_LARGE_WIDTH, THUMB_LARGE_HEIGHT);
 
@@ -266,7 +292,7 @@
 
 	CGFloat heightDelta = (controlRect.size.height - THUMB_SMALL_HEIGHT);
 
-	NSInteger thumbY = (heightDelta / 2.0f); NSInteger thumbX = 0; // Initial X, Y
+	NSInteger thumbY = (heightDelta * 0.5f); NSInteger thumbX = 0; // Initial X, Y
 
 	CGRect thumbRect = CGRectMake(thumbX, thumbY, THUMB_SMALL_WIDTH, THUMB_SMALL_HEIGHT);
 
@@ -315,78 +341,6 @@
 			ReaderPagebarThumb *thumb = object; thumb.hidden = YES;
 		}
 	];
-}
-
-- (void)updateStyle{
-    if(self.backgroundImage){
-        self.backgroundColor = [UIColor colorWithPatternImage:self.backgroundImage];
-    }else{
-        CAGradientLayer *layer = (CAGradientLayer *)self.layer;
-        UIColor *liteColor = self.topGradientColor;
-        UIColor *darkColor = self.bottomGradientColor;
-        layer.colors = [NSArray arrayWithObjects:(id)liteColor.CGColor, (id)darkColor.CGColor, nil];
-    }
-}
-
-- (UIColor *)topGradientColor{
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000
-    if(_topGradientColor == nil){
-        _topGradientColor = [[[self class] appearance] topGradientColor];
-    }
-
-    if(_topGradientColor != nil){
-        return _topGradientColor;
-    }
-#endif
-
-    return [UIColor colorWithWhite:0.82f alpha:0.8f];
-}
-
-- (void)setTopGradientColor:(UIColor *)topGradientColor{
-    if(_topGradientColor != topGradientColor){
-        _topGradientColor = topGradientColor;
-        [self updateStyle];
-    }
-}
-
-- (UIColor *)bottomGradientColor{
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000
-    if(_bottomGradientColor == nil){
-        _bottomGradientColor = [[[self class] appearance] bottomGradientColor];
-    }
-
-    if(_bottomGradientColor != nil){
-        return _bottomGradientColor;
-    }
-#endif
-    return [UIColor colorWithWhite:0.32f alpha:0.8f];
-}
-
-- (void)setBottomGradientColor:(UIColor *)bottomGradientColor{
-    if(_bottomGradientColor != bottomGradientColor){
-        _bottomGradientColor = bottomGradientColor;
-        [self updateStyle];
-    }
-}
-
-- (UIImage *)backgroundImage{
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000
-    if(_backgroundImage == nil){
-        _backgroundImage = [[[self class] appearance] backgroundImage];
-    }
-
-    if(_backgroundImage != nil){
-        return _backgroundImage;
-    }
-#endif
-    return nil;
-}
-
-- (void)setBackgroundImage:(UIImage *)backgroundImage{
-    if(_backgroundImage != backgroundImage){
-        _backgroundImage = backgroundImage;
-        [self updateStyle];
-    }
 }
 
 - (void)updatePagebarViews
@@ -477,7 +431,7 @@
 }
 
 
-#pragma mark ReaderTrackControl action methods
+#pragma mark - ReaderTrackControl action methods
 
 - (void)trackTimerFired:(NSTimer *)timer
 {
@@ -582,13 +536,13 @@
 	CGFloat _value;
 }
 
-#pragma mark Properties
+#pragma mark - Properties
 
 @synthesize value = _value;
 
-#pragma mark ReaderTrackControl instance methods
+#pragma mark - ReaderTrackControl instance methods
 
-- (id)initWithFrame:(CGRect)frame
+- (instancetype)initWithFrame:(CGRect)frame
 {
 	if ((self = [super initWithFrame:frame]))
 	{
@@ -597,6 +551,7 @@
 		self.contentMode = UIViewContentModeRedraw;
 		self.autoresizingMask = UIViewAutoresizingNone;
 		self.backgroundColor = [UIColor clearColor];
+		self.exclusiveTouch = YES;
 	}
 
 	return self;
@@ -613,7 +568,7 @@
 	return valueX;
 }
 
-#pragma mark UIControl subclass methods
+#pragma mark - UIControl subclass methods
 
 - (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
 {
@@ -658,14 +613,14 @@
 
 @implementation ReaderPagebarThumb
 
-#pragma mark ReaderPagebarThumb instance methods
+#pragma mark - ReaderPagebarThumb instance methods
 
-- (id)initWithFrame:(CGRect)frame
+- (instancetype)initWithFrame:(CGRect)frame
 {
 	return [self initWithFrame:frame small:NO];
 }
 
-- (id)initWithFrame:(CGRect)frame small:(BOOL)small
+- (instancetype)initWithFrame:(CGRect)frame small:(BOOL)small
 {
 	if ((self = [super initWithFrame:frame])) // Superclass init
 	{
@@ -693,18 +648,16 @@
 
 @implementation ReaderPagebarShadow
 
-@synthesize shadowColor = _shadowColor;
-
-#pragma mark ReaderPagebarShadow class methods
+#pragma mark - ReaderPagebarShadow class methods
 
 + (Class)layerClass
 {
 	return [CAGradientLayer class];
 }
 
-#pragma mark ReaderPagebarShadow instance methods
+#pragma mark - ReaderPagebarShadow instance methods
 
-- (id)initWithFrame:(CGRect)frame
+- (instancetype)initWithFrame:(CGRect)frame
 {
 	if ((self = [super initWithFrame:frame]))
 	{
@@ -714,51 +667,13 @@
 		self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 		self.backgroundColor = [UIColor clearColor];
 
-        [self updateGradient];
+		CAGradientLayer *layer = (CAGradientLayer *)self.layer;
+		UIColor *blackColor = [UIColor colorWithWhite:0.42f alpha:1.0f];
+		UIColor *clearColor = [UIColor colorWithWhite:0.42f alpha:0.0f];
+		layer.colors = [NSArray arrayWithObjects:(id)clearColor.CGColor, (id)blackColor.CGColor, nil];
 	}
 
 	return self;
-}
-
-- (void)updateGradient{
-    CAGradientLayer *layer = (CAGradientLayer *)self.layer;
-    UIColor *baseColor = self.shadowColor;
-
-    CGFloat red, green, blue;
-    const CGFloat *components = CGColorGetComponents([baseColor CGColor]);
-    if(CGColorGetNumberOfComponents([baseColor CGColor]) == 2){
-        red = components[0];
-        green = components[0];
-        blue = components[0];
-    }else{
-        red = components[0];
-        green = components[1];
-        blue = components[2];
-    }
-
-    UIColor *clearColor = [UIColor colorWithRed:red green:green blue:blue alpha:0];
-    layer.colors = [NSArray arrayWithObjects:(id)clearColor.CGColor, (id)baseColor.CGColor, nil];
-}
-
-- (UIColor *)shadowColor{
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000
-    if(_shadowColor == nil){
-        _shadowColor = (UIColor *)[[[self class] appearance] shadowColor];
-    }
-
-    if(_shadowColor != nil){
-        return _shadowColor;
-    }
-#endif
-
-    return [UIColor colorWithWhite:0.42f alpha:1.0f];
-}
-
-- (void)setShadowColor:(UIColor *)shadowColor{
-    if(_shadowColor != shadowColor){
-        _shadowColor = shadowColor;
-        [self updateGradient];
-    }
 }
 
 @end
