@@ -29,7 +29,7 @@
 
 #pragma mark - Constants
 
-#define LEVELS_OF_DETAIL 16
+#define LEVELS_OF_DETAIL 4
 
 #pragma mark - ReaderContentTile class methods
 
