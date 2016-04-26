@@ -39,7 +39,10 @@
 @property (nonatomic, assign, readonly) NSInteger thumbPage;
 @property (nonatomic, assign, readonly) CGSize thumbSize;
 @property (nonatomic, assign, readonly) CGFloat scale;
+@property (nonatomic, assign, readonly) UIImageOrientation thumbOrientation;
 
 + (instancetype)newForView:(ReaderThumbView *)view fileURL:(NSURL *)url password:(NSString *)phrase guid:(NSString *)guid page:(NSInteger)page size:(CGSize)size;
+
++ (instancetype)newForView:(ReaderThumbView *)view fileURL:(NSURL *)url password:(NSString *)phrase guid:(NSString *)guid page:(NSInteger)page size:(CGSize)size orientation:(UIImageOrientation)orientation;
 
 @end

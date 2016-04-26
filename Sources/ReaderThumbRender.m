@@ -64,7 +64,7 @@
 
 	NSString *cachePath = [ReaderThumbCache thumbCachePathForGUID:request.guid]; // Thumb cache path
 
-	[fileManager createDirectoryAtPath:cachePath withIntermediateDirectories:NO attributes:nil error:NULL];
+	[fileManager createDirectoryAtPath:cachePath withIntermediateDirectories:YES attributes:nil error:NULL];
 
 	NSString *fileName = [[NSString alloc] initWithFormat:@"%@.png", request.thumbName]; // Thumb file name
 
@@ -93,6 +93,27 @@
 			CGRect effectiveRect = CGRectIntersection(cropBoxRect, mediaBoxRect);
 
 			NSInteger pageRotate = CGPDFPageGetRotationAngle(thePDFPageRef); // Angle
+            
+            NSInteger orientationAngle;
+            switch (request.thumbOrientation) {
+                case UIImageOrientationUp:
+                    orientationAngle = 0;
+                    break;
+                case UIImageOrientationLeft:
+                    orientationAngle = 90;
+                    break;
+                case UIImageOrientationDown:
+                    orientationAngle = 180;
+                    break;
+                case UIImageOrientationRight:
+                    orientationAngle = 270;
+                    break;
+                default:
+                    orientationAngle = 0;
+                    break;
+            }
+            
+            pageRotate = (pageRotate+orientationAngle)%360;
 
 			CGFloat page_w = 0.0f; CGFloat page_h = 0.0f; // Rotated page size
 
@@ -143,7 +164,7 @@
 
 				CGContextSetRGBFillColor(context, 1.0f, 1.0f, 1.0f, 1.0f); CGContextFillRect(context, thumbRect); // White fill
 
-				CGContextConcatCTM(context, CGPDFPageGetDrawingTransform(thePDFPageRef, kCGPDFCropBox, thumbRect, 0, true)); // Fit rect
+				CGContextConcatCTM(context, CGPDFPageGetDrawingTransform(thePDFPageRef, kCGPDFCropBox, thumbRect, (int)orientationAngle, true)); // Fit rect
 
 				//CGContextSetRenderingIntent(context, kCGRenderingIntentDefault); CGContextSetInterpolationQuality(context, kCGInterpolationDefault);
 

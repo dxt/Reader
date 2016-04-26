@@ -47,6 +47,8 @@
 	CGSize _thumbSize;
 
 	CGFloat _scale;
+    
+    UIImageOrientation _thumbOrientation;
 }
 
 #pragma mark - Properties
@@ -61,17 +63,23 @@
 @synthesize targetTag = _targetTag;
 @synthesize cacheKey = _cacheKey;
 @synthesize scale = _scale;
+@synthesize thumbOrientation = _thumbOrientation;
 
 #pragma mark - ReaderThumbRequest class methods
 
 + (instancetype)newForView:(ReaderThumbView *)view fileURL:(NSURL *)url password:(NSString *)phrase guid:(NSString *)guid page:(NSInteger)page size:(CGSize)size
 {
-	return [[ReaderThumbRequest alloc] initForView:view fileURL:url password:phrase guid:guid page:page size:size];
+	return [[ReaderThumbRequest alloc] initForView:view fileURL:url password:phrase guid:guid page:page size:size orientation:UIImageOrientationUp];
 }
+
++ (instancetype)newForView:(ReaderThumbView *)view fileURL:(NSURL *)url password:(NSString *)phrase guid:(NSString *)guid page:(NSInteger)page size:(CGSize)size orientation:(UIImageOrientation)orientation{
+    return [[ReaderThumbRequest alloc] initForView:view fileURL:url password:phrase guid:guid page:page size:size orientation:orientation];
+}
+
 
 #pragma mark - ReaderThumbRequest instance methods
 
-- (instancetype)initForView:(ReaderThumbView *)view fileURL:(NSURL *)url password:(NSString *)phrase guid:(NSString *)guid page:(NSInteger)page size:(CGSize)size
+- (instancetype)initForView:(ReaderThumbView *)view fileURL:(NSURL *)url password:(NSString *)phrase guid:(NSString *)guid page:(NSInteger)page size:(CGSize)size orientation:(UIImageOrientation)orientation
 {
 	if ((self = [super init])) // Initialize object
 	{
@@ -80,8 +88,10 @@
 		_thumbView = view; _thumbPage = page; _thumbSize = size;
 
 		_fileURL = [url copy]; _password = [phrase copy]; _guid = [guid copy];
+        
+        _thumbOrientation = orientation;
 
-		_thumbName = [[NSString alloc] initWithFormat:@"%07i-%04ix%04i", (int)page, (int)w, (int)h];
+		_thumbName = [[NSString alloc] initWithFormat:@"%07i-%04ix%04i_%i", (int)page, (int)w, (int)h, (int)orientation];
 
 		_cacheKey = [[NSString alloc] initWithFormat:@"%@+%@", _thumbName, _guid];
 
