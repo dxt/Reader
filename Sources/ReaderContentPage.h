@@ -29,6 +29,8 @@
 
 - (instancetype)initWithURL:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase;
 
+- (instancetype)initWithURL:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase orientation:(UIImageOrientation)orientation;
+
 - (id)processSingleTap:(UITapGestureRecognizer *)recognizer;
 
 @end

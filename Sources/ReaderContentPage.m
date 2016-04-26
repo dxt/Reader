@@ -43,6 +43,8 @@
 
 	CGFloat _pageOffsetX;
 	CGFloat _pageOffsetY;
+    
+    NSInteger _rotateAngle;
 }
 
 #pragma mark - ReaderContentPage class methods
@@ -420,7 +422,11 @@
 	return self;
 }
 
-- (instancetype)initWithURL:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase
+- (instancetype)initWithURL:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase{
+    return [self initWithURL:fileURL page:page password:phrase orientation:UIImageOrientationUp];
+}
+
+- (instancetype)initWithURL:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase orientation:(UIImageOrientation)orientation;
 {
 	CGRect viewRect = CGRectZero; // View rect
 
@@ -447,6 +453,26 @@
 				CGRect effectiveRect = CGRectIntersection(cropBoxRect, mediaBoxRect);
 
 				_pageAngle = CGPDFPageGetRotationAngle(_PDFPageRef); // Angle
+                
+                switch (orientation) {
+                    case UIImageOrientationUp:
+                        _rotateAngle = 0;
+                        break;
+                    case UIImageOrientationLeft:
+                        _rotateAngle = 90;
+                        break;
+                    case UIImageOrientationDown:
+                        _rotateAngle = 180;
+                        break;
+                    case UIImageOrientationRight:
+                        _rotateAngle = 270;
+                        break;
+                    default:
+                        _rotateAngle = 0;
+                        break;
+                }
+                
+                _pageAngle = (_pageAngle+_rotateAngle)%360;
 
 				switch (_pageAngle) // Page rotation angle (in degrees)
 				{
@@ -540,7 +566,7 @@
 
 	CGContextTranslateCTM(context, 0.0f, self.bounds.size.height); CGContextScaleCTM(context, 1.0f, -1.0f);
 
-	CGContextConcatCTM(context, CGPDFPageGetDrawingTransform(_PDFPageRef, kCGPDFCropBox, self.bounds, 0, true));
+	CGContextConcatCTM(context, CGPDFPageGetDrawingTransform(_PDFPageRef, kCGPDFCropBox, self.bounds, (int)_rotateAngle, true));
 
 	//CGContextSetRenderingIntent(context, kCGRenderingIntentDefault); CGContextSetInterpolationQuality(context, kCGInterpolationDefault);
 
