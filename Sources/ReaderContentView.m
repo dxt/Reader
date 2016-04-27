@@ -124,7 +124,11 @@ static inline CGFloat zoomScaleThatFits(CGSize target, CGSize source)
 	if (UIEdgeInsetsEqualToEdgeInsets(self.contentInset, insets) == false) self.contentInset = insets;
 }
 
-- (instancetype)initWithFrame:(CGRect)frame fileURL:(NSURL *)fileURL page:(NSUInteger)page password:(NSString *)phrase
+- (instancetype)initWithFrame:(CGRect)frame fileURL:(NSURL *)fileURL page:(NSUInteger)page password:(NSString *)phrase{
+    return [self initWithFrame:frame fileURL:fileURL page:page password:phrase orientation:UIImageOrientationUp];
+}
+
+- (instancetype)initWithFrame:(CGRect)frame fileURL:(NSURL *)fileURL page:(NSUInteger)page password:(NSString *)phrase orientation:(UIImageOrientation)orientation
 {
 	if ((self = [super initWithFrame:frame]))
 	{
@@ -141,7 +145,7 @@ static inline CGFloat zoomScaleThatFits(CGSize target, CGSize source)
 
 		userInterfaceIdiom = [UIDevice currentDevice].userInterfaceIdiom; // User interface idiom
 
-		theContentPage = [[ReaderContentPage alloc] initWithURL:fileURL page:page password:phrase];
+		theContentPage = [[ReaderContentPage alloc] initWithURL:fileURL page:page password:phrase orientation:orientation];
 
 		if (theContentPage != nil) // Must have a valid and initialized content page
 		{
@@ -156,7 +160,7 @@ static inline CGFloat zoomScaleThatFits(CGSize target, CGSize source)
 #if (READER_SHOW_SHADOWS == TRUE) // Option
 
 			theContainerView.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
-			theContainerView.layer.shadowRadius = 4.0f; theContainerView.layer.shadowOpacity = 1.0f;
+			theContainerView.layer.shadowRadius = 2.0f; theContainerView.layer.shadowOpacity = 0.6f;
 			theContainerView.layer.shadowPath = [UIBezierPath bezierPathWithRect:theContainerView.bounds].CGPath;
 
 #endif // end of READER_SHOW_SHADOWS Option
@@ -227,13 +231,17 @@ static inline CGFloat zoomScaleThatFits(CGSize target, CGSize source)
 	}
 }
 
-- (void)showPageThumb:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase guid:(NSString *)guid
+- (void)showPageThumb:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase guid:(NSString *)guid{
+    return [self showPageThumb:fileURL page:page password:phrase guid:guid orientation:UIImageOrientationUp];
+}
+
+- (void)showPageThumb:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase guid:(NSString *)guid orientation:(UIImageOrientation)orientation
 {
 #if (READER_ENABLE_PREVIEW == TRUE) // Option
 
 	CGSize size = ((userInterfaceIdiom == UIUserInterfaceIdiomPad) ? CGSizeMake(PAGE_THUMB_LARGE, PAGE_THUMB_LARGE) : CGSizeMake(PAGE_THUMB_SMALL, PAGE_THUMB_SMALL));
 
-	ReaderThumbRequest *request = [ReaderThumbRequest newForView:theThumbView fileURL:fileURL password:phrase guid:guid page:page size:size];
+    ReaderThumbRequest *request = [ReaderThumbRequest newForView:theThumbView fileURL:fileURL password:phrase guid:guid page:page size:size orientation:orientation];
 
 	UIImage *image = [[ReaderThumbCache sharedInstance] thumbRequest:request priority:YES]; // Request the page thumb
 
@@ -325,6 +333,18 @@ static inline CGFloat zoomScaleThatFits(CGSize target, CGSize source)
 	{
 		if (animated) [self setZoomScale:self.minimumZoomScale animated:YES]; else self.zoomScale = self.minimumZoomScale; zoomBounced = NO;
 	}
+}
+
+- (void)minimalZoomToRect:(CGRect)rect animated:(BOOL)animated{
+    // Reader TODO
+}
+
+- (UIView *)containerView{
+    return theContainerView;
+}
+
+- (UIView *)contentPage{
+    return theContentPage;
 }
 
 #pragma mark - UIScrollViewDelegate methods

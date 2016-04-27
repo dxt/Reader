@@ -46,16 +46,22 @@
 @interface ReaderContentView : UIScrollView
 
 @property (nonatomic, weak, readwrite) id <ReaderContentViewDelegate> message;
+@property (nonatomic, readonly) UIView *containerView;
+@property (nonatomic, readonly) UIView *contentPage;
 
 - (instancetype)initWithFrame:(CGRect)frame fileURL:(NSURL *)fileURL page:(NSUInteger)page password:(NSString *)phrase;
+- (instancetype)initWithFrame:(CGRect)frame fileURL:(NSURL *)fileURL page:(NSUInteger)page password:(NSString *)phrase orientation:(UIImageOrientation)orientation;
 
 - (void)showPageThumb:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase guid:(NSString *)guid;
+- (void)showPageThumb:(NSURL *)fileURL page:(NSInteger)page password:(NSString *)phrase guid:(NSString *)guid orientation:(UIImageOrientation)orientation;
 
 - (id)processSingleTap:(UITapGestureRecognizer *)recognizer;
 
 - (void)zoomIncrement:(UITapGestureRecognizer *)recognizer;
 - (void)zoomDecrement:(UITapGestureRecognizer *)recognizer;
 - (void)zoomResetAnimated:(BOOL)animated;
+
+- (void)minimalZoomToRect:(CGRect)rect animated:(BOOL)animated;
 
 @end
 
