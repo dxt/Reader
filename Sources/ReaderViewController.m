@@ -41,6 +41,33 @@
 @end
 
 @implementation ReaderViewController
+{
+    ReaderDocument *document;
+    
+    UIScrollView *theScrollView;
+    
+    ReaderMainToolbar *mainToolbar;
+    
+    ReaderMainPagebar *mainPagebar;
+    
+    NSMutableDictionary *contentViews;
+    
+    UIUserInterfaceIdiom userInterfaceIdiom;
+    
+    NSInteger currentPage, minimumPage, maximumPage;
+    
+    UIDocumentInteractionController *documentInteraction;
+    
+    UIPrintInteractionController *printInteraction;
+    
+    CGFloat scrollViewOutset;
+    
+    CGSize lastAppearSize;
+    
+    NSDate *lastHideTime;
+    
+    BOOL ignoreDidScroll;
+}
 
 #pragma mark - Constants
 
@@ -57,6 +84,18 @@
 #pragma mark - Properties
 
 @synthesize delegate;
+
+- (ReaderDocument *)document{
+    return document;
+}
+
+- (ReaderMainPagebar *)mainPagebar{
+    return mainPagebar;
+}
+
+- (NSDictionary *)contentViews{
+    return contentViews;
+}
 
 #pragma mark - ReaderViewController methods
 
@@ -341,10 +380,10 @@
 	theScrollView.backgroundColor = [UIColor clearColor]; theScrollView.delegate = self;
 	[self.view addSubview:theScrollView];
 
-	CGRect toolbarRect = viewRect; toolbarRect.size.height = TOOLBAR_HEIGHT;
-	mainToolbar = [[ReaderMainToolbar alloc] initWithFrame:toolbarRect document:document]; // ReaderMainToolbar
-	mainToolbar.delegate = self; // ReaderMainToolbarDelegate
-	[self.view addSubview:mainToolbar];
+//	CGRect toolbarRect = viewRect; toolbarRect.size.height = TOOLBAR_HEIGHT;
+//	mainToolbar = [[ReaderMainToolbar alloc] initWithFrame:toolbarRect document:document]; // ReaderMainToolbar
+//	mainToolbar.delegate = self; // ReaderMainToolbarDelegate
+//	[self.view addSubview:mainToolbar];
 
     if(self.showPagebar){
         CGRect pagebarRect = self.view.bounds; pagebarRect.size.height = PAGEBAR_HEIGHT;

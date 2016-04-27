@@ -28,9 +28,9 @@
 #import "ReaderDocument.h"
 
 @class ReaderViewController;
-@class ReaderMainToolbar;
-@class ReaderMainPagebar;
 @class ReaderContentView;
+@class ReaderDocument;
+@class ReaderMainPagebar;
 
 @protocol ReaderViewControllerDelegate <NSObject>
 
@@ -41,35 +41,12 @@
 @end
 
 @interface ReaderViewController : UIViewController
-{
-    ReaderDocument *document;
-    
-    UIScrollView *theScrollView;
-    
-    ReaderMainToolbar *mainToolbar;
-    
-    ReaderMainPagebar *mainPagebar;
-    
-    NSMutableDictionary *contentViews;
-    
-    UIUserInterfaceIdiom userInterfaceIdiom;
-    
-    NSInteger currentPage, minimumPage, maximumPage;
-    
-    UIDocumentInteractionController *documentInteraction;
-    
-    UIPrintInteractionController *printInteraction;
-    
-    CGFloat scrollViewOutset;
-    
-    CGSize lastAppearSize;
-    
-    NSDate *lastHideTime;
-    
-    BOOL ignoreDidScroll;
-}
 
 @property (nonatomic, weak, readwrite) id <ReaderViewControllerDelegate> delegate;
+
+@property (nonatomic, readonly) ReaderDocument *document;
+@property (nonatomic, readonly) ReaderMainPagebar *mainPagebar;
+@property (nonatomic, readonly) NSDictionary *contentViews;
 
 - (instancetype)initWithReaderDocument:(ReaderDocument *)object;
 - (instancetype)initWithReaderDocument:(ReaderDocument *)object showPagebar:(BOOL)showPagebar;
