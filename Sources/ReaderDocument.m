@@ -57,6 +57,8 @@
 	NSString *_filePath;
 
 	NSURL *_fileURL;
+    
+    NSMutableDictionary *_pageOrientations;
 }
 
 #pragma mark - Properties
@@ -351,6 +353,27 @@
 	}
 
 	return self;
+}
+
+#pragma mark - Page orientation methods
+
+- (void)setOrientation:(UIImageOrientation)orientation forPage:(NSInteger)page{
+    if(!_pageOrientations){
+        _pageOrientations = [NSMutableDictionary dictionary];
+    }
+    _pageOrientations[[@(page) description]] = @(orientation);
+}
+
+- (UIImageOrientation)orientationForPage:(NSInteger)page{
+    return (UIImageOrientation) [_pageOrientations[[@(page) description]] integerValue];
+}
+
+- (NSDictionary *)pageOrientations{
+    return [_pageOrientations copy];
+}
+
+- (void)setPageOrientations:(NSDictionary *)pageOrientations{
+    _pageOrientations = [pageOrientations mutableCopy];
 }
 
 @end

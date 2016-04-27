@@ -119,7 +119,7 @@
 
 		NSURL *fileURL = document.fileURL; NSString *guid = document.guid; NSString *phrase = document.password;
 
-		ReaderThumbRequest *request = [ReaderThumbRequest newForView:pageThumbView fileURL:fileURL password:phrase guid:guid page:page size:size];
+		ReaderThumbRequest *request = [ReaderThumbRequest newForView:pageThumbView fileURL:fileURL password:phrase guid:guid page:page size:size orientation:[document orientationForPage:page]];
 
 		UIImage *image = [[ReaderThumbCache sharedInstance] thumbRequest:request priority:YES]; // Request the thumb
 
@@ -314,7 +314,7 @@
 
 			smallThumbView = [[ReaderPagebarThumb alloc] initWithFrame:thumbRect small:YES]; // Create a small thumb view
 
-			ReaderThumbRequest *thumbRequest = [ReaderThumbRequest newForView:smallThumbView fileURL:fileURL password:phrase guid:guid page:page size:size];
+			ReaderThumbRequest *thumbRequest = [ReaderThumbRequest newForView:smallThumbView fileURL:fileURL password:phrase guid:guid page:page size:size orientation:[document orientationForPage:page]];
 
 			UIImage *image = [[ReaderThumbCache sharedInstance] thumbRequest:thumbRequest priority:NO]; // Request the thumb
 
@@ -430,6 +430,17 @@
 	}
 }
 
+- (void)pageRotated{
+    pageThumbView.tag = 0;
+    [miniThumbViews removeObjectForKey:document.pageNumber];
+    [self setNeedsLayout];
+}
+
+- (void)allPagesRotated{
+    pageThumbView.tag = 0;
+    [miniThumbViews removeAllObjects];
+    [self setNeedsLayout];
+}
 
 #pragma mark - ReaderTrackControl action methods
 

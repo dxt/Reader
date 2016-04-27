@@ -37,6 +37,7 @@
 @property (nonatomic, strong, readonly) NSString *password;
 @property (nonatomic, strong, readonly) NSString *fileName;
 @property (nonatomic, strong, readonly) NSURL *fileURL;
+@property (nonatomic, strong, readonly) NSDictionary *pageOrientations;
 
 @property (nonatomic, readonly) BOOL canEmail;
 @property (nonatomic, readonly) BOOL canExport;
@@ -51,5 +52,9 @@
 - (BOOL)archiveDocumentProperties;
 
 - (void)updateDocumentProperties;
+
+- (void)setOrientation:(UIImageOrientation)orientation forPage:(NSInteger)page;
+- (UIImageOrientation)orientationForPage:(NSInteger)page;
+- (void)setPageOrientations:(NSDictionary *)pageOrientations;
 
 @end

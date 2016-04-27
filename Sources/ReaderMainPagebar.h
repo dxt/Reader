@@ -54,6 +54,9 @@
 - (void)hidePageNumber;
 - (void)showPageNumber;
 
+- (void)pageRotated;
+- (void)allPagesRotated;
+
 @end
 
 #pragma mark -
