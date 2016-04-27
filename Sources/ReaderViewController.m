@@ -50,7 +50,7 @@
 #define PAGEBAR_HEIGHT 43.0f
 
 #define SCROLLVIEW_OUTSET_SMALL 4.0f
-#define SCROLLVIEW_OUTSET_LARGE 8.0f
+#define SCROLLVIEW_OUTSET_LARGE 4.0f
 
 #define TAP_AREA_SIZE 48.0f
 
@@ -82,7 +82,7 @@
 
 			viewRect.origin.x = (viewRect.size.width * (page - 1)); // Update X
 
-			contentView.frame = CGRectInset(viewRect, scrollViewOutset, 0.0f);
+			contentView.frame = CGRectInset(viewRect, scrollViewOutset, scrollViewOutset);
 		}
 	];
 
@@ -104,7 +104,7 @@
 {
 	CGRect viewRect = CGRectZero; viewRect.size = scrollView.bounds.size;
 
-	viewRect.origin.x = (viewRect.size.width * (page - 1)); viewRect = CGRectInset(viewRect, scrollViewOutset, 0.0f);
+	viewRect.origin.x = (viewRect.size.width * (page - 1)); viewRect = CGRectInset(viewRect, scrollViewOutset, scrollViewOutset);
 
 	NSURL *fileURL = document.fileURL; NSString *phrase = document.password; NSString *guid = document.guid; // Document properties
 
@@ -329,7 +329,7 @@
 		}
 	}
 
-	CGRect scrollViewRect = CGRectInset(viewRect, -scrollViewOutset, 0.0f);
+    CGRect scrollViewRect = viewRect;
     if(self.showPagebar){
         scrollViewRect.size.height -= PAGEBAR_HEIGHT;
     }
