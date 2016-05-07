@@ -79,7 +79,7 @@
 #define SCROLLVIEW_OUTSET_SMALL 4.0f
 #define SCROLLVIEW_OUTSET_LARGE 4.0f
 
-#define TAP_AREA_SIZE 48.0f
+#define TAP_AREA_SIZE 0.0f
 
 #pragma mark - Properties
 
@@ -89,12 +89,24 @@
     return document;
 }
 
+- (UIScrollView *)scrollView{
+    return theScrollView;
+}
+
 - (ReaderMainPagebar *)mainPagebar{
     return mainPagebar;
 }
 
 - (NSDictionary *)contentViews{
     return contentViews;
+}
+
+- (NSInteger)currentPage{
+    return currentPage;
+}
+
+- (CGFloat)pagebarHeight{
+    return PAGEBAR_HEIGHT;
 }
 
 #pragma mark - ReaderViewController methods
@@ -147,11 +159,11 @@
 
 	NSURL *fileURL = document.fileURL; NSString *phrase = document.password; NSString *guid = document.guid; // Document properties
 
-	ReaderContentView *contentView = [[ReaderContentView alloc] initWithFrame:viewRect fileURL:fileURL page:page password:phrase]; // ReaderContentView
+	ReaderContentView *contentView = [[ReaderContentView alloc] initWithFrame:viewRect fileURL:fileURL page:page password:phrase orientation:[document orientationForPage:page]]; // ReaderContentView
 
 	contentView.message = self; [contentViews setObject:contentView forKey:[NSNumber numberWithInteger:page]]; [scrollView addSubview:contentView];
 
-	[contentView showPageThumb:fileURL page:page password:phrase guid:guid]; // Request page preview thumb
+	[contentView showPageThumb:fileURL page:page password:phrase guid:guid orientation:[document orientationForPage:page]]; // Request page preview thumb
     
     [self createdContentView:contentView forPage:page];
 }
@@ -229,17 +241,22 @@
 	if (page != currentPage) // Only if on different page
 	{
 		currentPage = page; document.pageNumber = [NSNumber numberWithInteger:page];
-
+        
 		[contentViews enumerateKeysAndObjectsUsingBlock: // Enumerate content views
 			^(NSNumber *key, ReaderContentView *contentView, BOOL *stop)
 			{
-				if ([key integerValue] != page) [contentView zoomResetAnimated:NO];
+                if ([key integerValue] != page){
+                    [self standardizeContentViewFrame:contentView];
+                    [contentView zoomResetAnimated:NO];
+                }
 			}
 		];
 
 		[mainToolbar setBookmarkState:[document.bookmarks containsIndex:page]];
 
 		[mainPagebar updatePagebar]; // Update page bar
+        
+        [self didShowDocumentPage:page];
 	}
 }
 
@@ -261,13 +278,18 @@
 		[contentViews enumerateKeysAndObjectsUsingBlock: // Enumerate content views
 			^(NSNumber *key, ReaderContentView *contentView, BOOL *stop)
 			{
-				if ([key integerValue] != page) [contentView zoomResetAnimated:NO];
+                if ([key integerValue] != page){
+                    [self standardizeContentViewFrame:contentView];
+                    [contentView zoomResetAnimated:NO];
+                }
 			}
 		];
 
 		[mainToolbar setBookmarkState:[document.bookmarks containsIndex:page]];
 
 		[mainPagebar updatePagebar]; // Update page bar
+        
+        [self didShowDocumentPage:page];
 	}
 }
 
@@ -278,6 +300,8 @@
 	[self showDocumentPage:[document.pageNumber integerValue]]; // Show page
 
 	document.lastOpen = [NSDate date]; // Update document last opened date
+    
+    [self didShowDocument];
 }
 
 - (void)closeDocument
@@ -929,9 +953,98 @@
 	if (userInterfaceIdiom == UIUserInterfaceIdiomPad) if (printInteraction != nil) [printInteraction dismissAnimated:NO];
 }
 
-#pragma mark Methods for subclasses
+#pragma mark -
+#pragma mark - Page reload methods
+
+- (void)reloadCurrentPage{
+    NSInteger page = currentPage;
+    UIView *currentView = [contentViews objectForKey:[NSNumber numberWithInteger:page]];
+    [contentViews removeObjectForKey:[NSNumber numberWithInteger:page]];
+    [currentView removeFromSuperview];
+    currentPage = 0;
+    [self showDocumentPage:page];
+}
+
+- (void)reloadAllPages{
+    [contentViews enumerateKeysAndObjectsUsingBlock:^(id key, UIView *contentView, BOOL *stop) {
+        [contentView removeFromSuperview];
+    }];
+    [contentViews removeAllObjects];
+    [self reloadCurrentPage];
+}
+
+#pragma mark - Content View frame methods
+
+- (CGFloat)standardContentViewHeight{
+    return (theScrollView.bounds.size.height - scrollViewOutset*2);
+}
+
+- (void)offsetCurentPageFrame:(CGFloat)yOffset{
+    UIView *contentView = [contentViews objectForKey:[NSNumber numberWithInteger:currentPage]]; // View
+    NSAssert(!!contentView, @"nil content view");
+    
+    CGRect frame = contentView.frame;
+    frame.origin.y = scrollViewOutset + yOffset;
+    frame.size.height = [self standardContentViewHeight];
+    
+    contentView.frame = frame;
+}
+
+- (void)reduceCurrentPageFrameHeight:(CGFloat)reduceAmount{
+    UIScrollView *contentView = [contentViews objectForKey:[NSNumber numberWithInteger:currentPage]]; // View
+    NSAssert(!!contentView, @"nil content view");
+    
+    if(contentView.zoomScale == contentView.minimumZoomScale){
+        contentView.zoomScale += 0.01f;  // prevent scaling when frame is changed
+    }
+    
+    CGRect frame = contentView.frame;
+    frame.origin.y = scrollViewOutset;
+    frame.size.height = [self standardContentViewHeight] - reduceAmount;
+    
+    contentView.frame = frame;
+}
+
+- (BOOL)currentPageFrameIsStandard{
+    UIScrollView *contentView = [contentViews objectForKey:[NSNumber numberWithInteger:currentPage]]; // View
+    NSAssert(!!contentView, @"nil content view");
+    
+    return (contentView.frame.origin.y == scrollViewOutset) && contentView.frame.size.height == [self standardContentViewHeight];
+}
+
+- (CGFloat)currentPageFrameOffset{
+    UIScrollView *contentView = [contentViews objectForKey:[NSNumber numberWithInteger:currentPage]]; // View
+    NSAssert(!!contentView, @"nil content view");
+
+    return (contentView.frame.origin.y - scrollViewOutset);
+}
+
+- (void)standardizeCurrentPageFrame{
+    UIScrollView *contentView = [contentViews objectForKey:[NSNumber numberWithInteger:currentPage]]; // View
+    NSAssert(!!contentView, @"nil content view");
+
+    [self standardizeContentViewFrame:contentView];
+}
+
+- (void)standardizeContentViewFrame:(UIScrollView *)contentView{
+    CGRect frame = contentView.frame;
+    frame.origin.y = scrollViewOutset;
+    frame.size.height = [self standardContentViewHeight];
+    
+    contentView.frame = frame;
+}
+
+#pragma mark - Methods for subclasses
 
 - (void)createdContentView:(ReaderContentView *)contentView forPage:(NSInteger)pageNumber{
+    // Subclasses can override to perform custom actions
+}
+
+- (void)didShowDocumentPage:(NSInteger)page{
+    // Subclasses can override to perform custom actions
+}
+
+- (void)didShowDocument{
     // Subclasses can override to perform custom actions
 }
 

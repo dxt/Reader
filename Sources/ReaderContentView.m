@@ -53,7 +53,7 @@
 #pragma mark - Constants
 
 #define ZOOM_FACTOR 2.0f
-#define ZOOM_MAXIMUM 16.0f
+#define ZOOM_MAXIMUM 4.0f
 
 #define PAGE_THUMB_SMALL 144
 #define PAGE_THUMB_LARGE 240
@@ -104,7 +104,11 @@ static inline CGFloat zoomScaleThatFits(CGSize target, CGSize source)
 {
 	CGFloat zoomScale = zoomScaleThatFits(self.bounds.size, theContentPage.bounds.size);
 
-	self.minimumZoomScale = zoomScale; self.maximumZoomScale = (zoomScale * ZOOM_MAXIMUM);
+	self.minimumZoomScale = zoomScale;
+    
+    // Set Maximum zoom scale based on the whole device screen size
+    zoomScale = zoomScaleThatFits([UIScreen mainScreen].bounds.size, theContentPage.bounds.size);
+    self.maximumZoomScale = (zoomScale * ZOOM_MAXIMUM);
 
 	realMaximumZoom = self.maximumZoomScale; tempMaximumZoom = (realMaximumZoom * ZOOM_FACTOR);
 }
@@ -336,7 +340,33 @@ static inline CGFloat zoomScaleThatFits(CGSize target, CGSize source)
 }
 
 - (void)minimalZoomToRect:(CGRect)rect animated:(BOOL)animated{
-    // Reader TODO
+    if(self.bounds.size.width >= 504){
+        CGFloat width = MIN(self.contentSize.width, self.bounds.size.width) / self.zoomScale;
+        
+        if(width > rect.size.width){
+            rect.origin.x = MAX(0, (rect.origin.x + rect.size.width/2)-width/2);
+            rect.origin.x = MIN(rect.origin.x, self.contentSize.width-width);
+            rect.size.width = width;
+        }
+    }else{
+        CGFloat width = MIN(CGRectInset(rect,-10,-10).size.width, self.contentSize.width/self.zoomScale);
+        
+        rect.origin.x = MAX(0, (rect.origin.x + rect.size.width/2)-width/2);
+        rect.origin.x = MIN(rect.origin.x, self.contentSize.width/self.zoomScale-width);
+        
+        rect.size.width = width;
+        
+        if(self.contentSize.width < self.bounds.size.width){
+            CGFloat endingZoomScale = self.bounds.size.width/width;
+            rect.origin.x -= ((self.bounds.size.width - self.contentSize.width)/2)/endingZoomScale;
+        }
+    }
+    
+    [self zoomToRect:rect animated:YES];
+}
+
+- (void)scrollRectToVisible:(CGRect)rect animated:(BOOL)animated{
+    // Do not execute base class so that there is no scrolling when a text field begins editing
 }
 
 - (UIView *)containerView{

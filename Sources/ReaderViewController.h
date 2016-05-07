@@ -25,6 +25,12 @@
 
 #import <UIKit/UIKit.h>
 
+#import "ReaderConstants.h"
+
+#if (READER_USE_SN_BASE_VIEW_CONTROLLER == TRUE)
+#import "SNBaseViewController.h"
+#endif
+
 #import "ReaderDocument.h"
 
 @class ReaderViewController;
@@ -40,17 +46,40 @@
 
 @end
 
+#if (READER_USE_SN_BASE_VIEW_CONTROLLER == TRUE)
+@interface ReaderViewController : SNBaseViewController
+#else
 @interface ReaderViewController : UIViewController
+#endif
 
 @property (nonatomic, weak, readwrite) id <ReaderViewControllerDelegate> delegate;
 
 @property (nonatomic, readonly) ReaderDocument *document;
+@property (nonatomic, readonly) UIScrollView *scrollView;
 @property (nonatomic, readonly) ReaderMainPagebar *mainPagebar;
 @property (nonatomic, readonly) NSDictionary *contentViews;
+@property (nonatomic, readonly) NSInteger currentPage;
+
+@property (nonatomic, readonly) CGFloat pagebarHeight;
 
 - (instancetype)initWithReaderDocument:(ReaderDocument *)object;
 - (instancetype)initWithReaderDocument:(ReaderDocument *)object showPagebar:(BOOL)showPagebar;
 
+- (void)showDocumentPage:(NSInteger)page;
+- (void)decrementPageNumber;
+- (void)incrementPageNumber;
+
+- (void)reloadCurrentPage;
+- (void)reloadAllPages;
+
+- (void)offsetCurentPageFrame:(CGFloat)yOffset;
+- (void)reduceCurrentPageFrameHeight:(CGFloat)reduceAmount;
+- (BOOL)currentPageFrameIsStandard;
+- (CGFloat)currentPageFrameOffset;
+- (void)standardizeCurrentPageFrame;
+
+- (void)didShowDocument;
 - (void)createdContentView:(ReaderContentView *)contentView forPage:(NSInteger)pageNumber;
+- (void)didShowDocumentPage:(NSInteger)page;
 
 @end
