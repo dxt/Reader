@@ -377,20 +377,20 @@
 
 	UIView *fakeStatusBar = nil; CGRect viewRect = self.view.bounds; // View bounds
 
-	if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) // iOS 7+
-	{
-		if ([self prefersStatusBarHidden] == NO) // Visible status bar
-		{
-			CGRect statusBarRect = viewRect; statusBarRect.size.height = STATUS_HEIGHT;
-			fakeStatusBar = [[UIView alloc] initWithFrame:statusBarRect]; // UIView
-			fakeStatusBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-			fakeStatusBar.backgroundColor = [UIColor blackColor];
-			fakeStatusBar.contentMode = UIViewContentModeRedraw;
-			fakeStatusBar.userInteractionEnabled = NO;
-
-			viewRect.origin.y += STATUS_HEIGHT; viewRect.size.height -= STATUS_HEIGHT;
-		}
-	}
+//	if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) // iOS 7+
+//	{
+//		if ([self prefersStatusBarHidden] == NO) // Visible status bar
+//		{
+//			CGRect statusBarRect = viewRect; statusBarRect.size.height = STATUS_HEIGHT;
+//			fakeStatusBar = [[UIView alloc] initWithFrame:statusBarRect]; // UIView
+//			fakeStatusBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+//			fakeStatusBar.backgroundColor = [UIColor blackColor];
+//			fakeStatusBar.contentMode = UIViewContentModeRedraw;
+//			fakeStatusBar.userInteractionEnabled = NO;
+//
+//			viewRect.origin.y += STATUS_HEIGHT; viewRect.size.height -= STATUS_HEIGHT;
+//		}
+//	}
 
     CGRect scrollViewRect = viewRect;
     if(self.showPagebar){
